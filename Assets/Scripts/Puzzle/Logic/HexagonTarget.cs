@@ -69,11 +69,11 @@ namespace Glasshouse.Puzzles.Logic
         protected override void SetPower(int value)
         {
             int currentPower = 0;
+            //Count the total power of neghbours from 0
             foreach(HexagonPowered_Active generator in powerGenerators)
             {
                 currentPower += generator.PowerValue;
             }
-            Debug.Log($"Setting power of {gameObject.name} -> {currentPower}");
             base.SetPower(currentPower);
             OnChangedPowerForRequirement.Invoke(this, PowerValue, _requiredPower);         
         }

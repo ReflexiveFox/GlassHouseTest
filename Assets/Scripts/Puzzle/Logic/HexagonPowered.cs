@@ -18,7 +18,6 @@ namespace Glasshouse.Puzzles.Logic
                 
                 int previousValue = _powerValue;
                 _powerValue = Mathf.Clamp(value, 0, int.MaxValue);
-                Debug.Log($"Changing PowerValue ({previousValue}) with new value ({value}) = {PowerValue}");
             }
             get
             {
@@ -34,7 +33,6 @@ namespace Glasshouse.Puzzles.Logic
         //Increase power by value amount
         protected virtual void SetPower(int value)
         {
-            Debug.Log($"OnPowerChanged of {gameObject.name}: {PowerValue} -> {value}");
             _powerValue = value;
             
             //Update power text display
@@ -43,8 +41,6 @@ namespace Glasshouse.Puzzles.Logic
 
         protected virtual void PowerUp()
         {
-            Debug.Log($"OnPowerUp of {gameObject.name}: {PowerValue} + 1 -> {PowerValue +1}");
-
             PowerValue += 1;
 
             //Update power text display
@@ -56,7 +52,6 @@ namespace Glasshouse.Puzzles.Logic
         {
             PowerValue -= 1;
 
-            Debug.Log($"OnPowerDown of {gameObject.name}: {PowerValue +1} - 1 -> {PowerValue}");
             //Update power text display
             OnPowerChanged(PowerValue); 
         }
