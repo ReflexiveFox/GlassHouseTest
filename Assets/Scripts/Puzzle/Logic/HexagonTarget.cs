@@ -22,7 +22,11 @@ namespace Glasshouse.Puzzles.Logic
         {
             base.Start();
 
-            Invoke(nameof(PopulateList), 2f);
+            //Prevent hexagons to listen unwanted events at startup
+            Invoke(nameof(PopulateList), .5f);
+
+            //Update generator power to see if there are active hexagons nearby
+            SetPower(0);
         }
 
         /// <summary>
