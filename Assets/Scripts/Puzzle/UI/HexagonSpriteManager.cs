@@ -21,61 +21,47 @@ namespace Glasshouse.Puzzles.UI
 
         private void Start()
         {
-            hexImage.sprite = possibleHexSprites[0];
-            if (hexPowered.GetType() == typeof(HexagonDirectional) || hexPowered.GetType() == typeof(HexagonPowered_Active))
-            {
-                hexPowered.OnPowerChanged += UpdateSprite;
-            }
-            else if (hexPowered.GetType() == typeof(HexagonTarget))
-            {
-                HexagonTarget.OnChangedPowerForRequirement += UpdateSprite;
-            }
+            hexPowered.OnPowerChanged += UpdateGenericHexagonSprite;
+            UpdateGenericHexagonSprite(hexPowered.PowerValue);
         }
 
         private void OnDestroy()
         {
-            if (hexPowered.GetType() == typeof(HexagonDirectional))
-            {
-                hexPowered.OnPowerChanged -= UpdateSprite;
-            }
-            else if (hexPowered.GetType() == typeof(HexagonTarget))
-            {
-                HexagonTarget.OnChangedPowerForRequirement -= UpdateSprite;
-            }
+            hexPowered.OnPowerChanged -= UpdateGenericHexagonSprite;
         }
 
-        private void UpdateSprite(HexagonTarget target, int powerValue, int requiredPower)
+        private void UpdateGenericHexagonSprite(int powerValue)
         {
-            //Check if it is the same target
-            if (target != hexPowered)
-                return;
-            // Update the sprite for target hexagon based on power state and required power
-            // 0 = No power, 1 = Not enough, 2 = Too much, 3 = Correct
+            // Update the hexagon's sprite based on its type, power state and required power (if present on hexagon)
             if (powerValue > 0)
             {
-                if (powerValue < requiredPower)
+                //These types of hexagons have 2 statuses: ON / OFF
+                if (hexPowered.GetType() == typeof(HexagonDirectional) || hexPowered.GetType() == typeof(HexagonPowered_Active))
                 {
-                    hexImage.sprite = possibleHexSprites[1];
+                    hexImage.sprite = possibleHexSprites[1];    // Turned ON
                 }
-                else if (powerValue > requiredPower)
+                //This hexagon has more than 2 statuses: OFF / NotEnough / ON / TooMuch
+                else if(hexPowered.GetType() == typeof(HexagonTarget))
                 {
-                    hexImage.sprite = possibleHexSprites[2];
-                }
-                else
-                {
-                    hexImage.sprite = possibleHexSprites[3];
-                }
+                    HexagonTarget target = (HexagonTarget)hexPowered;
+                    if (powerValue < target.RequiredPower)
+                    {
+                        hexImage.sprite = possibleHexSprites[1];    // Not enough power
+                    }
+                    else if (powerValue > target.RequiredPower)     
+                    {
+                        hexImage.sprite = possibleHexSprites[2];    // Too much power
+                    }
+                    else
+                    {
+                        hexImage.sprite = possibleHexSprites[3];    // Turned ON
+                    }
+                }                    
             }
             else
             {
-                hexImage.sprite = possibleHexSprites[0];
-            }
-        }
-
-        private void UpdateSprite(int powerValue)
-        {
-            // Update the sprite for single direction hexagon based on power state
-            hexImage.sprite = possibleHexSprites[powerValue > 0 ? 1 : 0];
+                hexImage.sprite = possibleHexSprites[0];    //Set generic hexagon to OFF status
+            }      
         }
     }
 }
