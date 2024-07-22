@@ -5,6 +5,8 @@ using Glasshouse.Puzzles.Logic;
 using System.Collections.Generic;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using System.Collections;
+using Unity.VisualScripting;
 
 namespace Glasshouse.Puzzles.Input
 {
@@ -16,6 +18,9 @@ namespace Glasshouse.Puzzles.Input
         [SerializeField] private PlayerInputActions playerInputActions;
         private InputAction rotateAction;
         private InputAction powerAction;
+
+        [Tooltip("How many seconds should pass between one input to the puzzle and another (to avoid spamming inputs)")]
+        [SerializeField, Range(0f, 1f)] private float inputCooldown = .1f;
 
         private void Awake()
         {
@@ -36,33 +41,55 @@ namespace Glasshouse.Puzzles.Input
             PuzzleManager.OnPuzzleCompleted -= DisableInput;
         }
 
+        private void OnDestroy()
+        {
+            playerInputActions.Dispose();
+        }
 
         private void EnableInput()
         {
             rotateAction.Enable();
             rotateAction.performed += InvokeOnRotateEvent;
+            rotateAction.performed += PauseListeningInput;
 
             powerAction.Enable();
             powerAction.performed += InvokeOnPowerEvent;
+            powerAction.performed += PauseListeningInput;
         }
 
         private void DisableInput()
         {
             rotateAction.Disable();
             rotateAction.performed -= InvokeOnRotateEvent;
+            rotateAction.performed -= PauseListeningInput;
+
 
             powerAction.Disable();
             powerAction.performed -= InvokeOnPowerEvent;
+            powerAction.performed -= PauseListeningInput;
         }
 
-        private void InvokeOnPowerEvent(InputAction.CallbackContext obj)
+        private void InvokeOnPowerEvent(InputAction.CallbackContext _)
         {
+
             OnPlayerInputPower.Invoke();
         }
 
-        private void InvokeOnRotateEvent(InputAction.CallbackContext obj)
+        private void InvokeOnRotateEvent(InputAction.CallbackContext _)
         {
             OnPlayerInputRotate.Invoke();
+        }
+
+        private void PauseListeningInput(InputAction.CallbackContext callbackContext)
+        {
+            callbackContext.action.Disable();
+            StartCoroutine(ReactivateInputAfter(callbackContext.action));
+        }
+
+        private IEnumerator ReactivateInputAfter(InputAction inputAction)
+        {
+            yield return new WaitForSeconds(inputCooldown);
+            inputAction.Enable();
         }
 
         public static bool RaycastMouseClick(GraphicRaycaster raycaster, GameObject gameObjToCheck)
