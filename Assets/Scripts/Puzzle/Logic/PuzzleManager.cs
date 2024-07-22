@@ -57,6 +57,8 @@ namespace Glasshouse.Puzzles.Logic
             {
                 int hexTargetIndex = targetsActiveStatuses.IndexOf(fullChargedHexTarget);
                 targetStatuses[hexTargetIndex] = currentPower == requiredPower;
+                //To avoid spam clicking
+                //Invoke(nameof(CheckList),.25f);
                 CheckList();
             }
         }
@@ -64,16 +66,15 @@ namespace Glasshouse.Puzzles.Logic
         // Check if all hexagon target have the required power to solve the puzzle
         private void CheckList()
         {
-            bool isPuzzleSolved = true;
+            int checkCount = 0;
             foreach(bool status in targetStatuses)
             {
-                if(!status)
+                if (status)
                 {
-                    isPuzzleSolved = false;
-                    break;
+                    checkCount++;
                 }
             }
-            if(isPuzzleSolved)
+            if(checkCount == targetStatuses.Count)
             {
                 // GAME WON
                 OnPuzzleCompleted.Invoke();
